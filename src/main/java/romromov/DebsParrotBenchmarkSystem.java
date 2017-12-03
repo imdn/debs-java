@@ -7,7 +7,9 @@ import com.rabbitmq.client.ConnectionFactory;
 import com.rabbitmq.client.DefaultConsumer;
 import com.rabbitmq.client.Envelope;
 import com.rabbitmq.client.MessageProperties;
-import debs.rdf.Parser;
+
+import debs.TaskProcessor;
+
 import org.hobbit.core.Commands;
 import org.hobbit.core.Constants;
 import org.hobbit.core.components.AbstractCommandReceivingComponent;
@@ -59,7 +61,7 @@ class DebsParrotBenchmarkSystem extends AbstractCommandReceivingComponent {
 
     private static final String serializedMetadataFile = "metadata.ser";
 
-    private Parser parser = new Parser(serializedMetadataFile);
+    private TaskProcessor taskProcessor= new TaskProcessor(serializedMetadataFile);
 
     @Override
     public void init() throws Exception {
@@ -184,11 +186,11 @@ class DebsParrotBenchmarkSystem extends AbstractCommandReceivingComponent {
             if (TERMINATION_MESSAGE.equals(message)) {
                 logger.debug("Got termination message");
                 //parser.serializeMetadata("metadata.ser");
-                parser.printMetadata();
+                taskProcessor.printMetadata();
                 terminationMessageBarrier.countDown();
             } else {
                 //logger.debug("Repeating message: {}", message);
-                parser.processMessage(bytes);
+                taskProcessor.processMessage(bytes);
                 //send(bytes);
             }
         } catch (Exception e) {
