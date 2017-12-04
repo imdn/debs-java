@@ -1,8 +1,9 @@
 package debs;
 
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 
-class ObservationGroup {
+public class ObservationGroup {
     private String groupId;
     private String machineId;
     private String timestampId;
@@ -10,9 +11,9 @@ class ObservationGroup {
     private String cycle;
     private LinkedHashMap<String, Observation> observations;
 
-    ObservationGroup(String id) {
+    public ObservationGroup(String id) {
         this.groupId = id;
-        this.observations = new LinkedHashMap<String, Observation>();
+        this.observations = new LinkedHashMap<>();
     }
 
     public void setMachineId(String machineId) {
@@ -31,8 +32,9 @@ class ObservationGroup {
         this.cycle = cycle;
     }
 
-    public void addObservations(Observation observation) {
-        this.observations.put(observation.getObservationId(), observation);
+    public void addObservation(Observation observation) {
+        String oid = observation.getObservationId();
+        observations.put(oid, observation);
     }
 
     public Observation getObservation(String id) {

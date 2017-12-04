@@ -28,8 +28,8 @@ public class Metadata implements Serializable {
     private static final Logger logger = LoggerFactory.getLogger(Metadata.class);
 
     public Metadata() {
-        machines = new HashMap<String, Machine>();
-        models = new HashMap<String, MachineModel>();
+        machines = new HashMap<>();
+        models = new HashMap<>();
     }
 
     public void processMetadata(Triple t) {
@@ -105,6 +105,19 @@ public class Metadata implements Serializable {
 
     public HashMap<String, MachineModel> getModels() {
         return models;
+    }
+
+    public String getModelIdForMachine(String machineId) {
+        return machines.get(machineId).getModel();
+    }
+
+    public boolean isStatefulPropertyForMachine(String machineId, String propId) {
+        // Check if a given property is stateful for a given machine
+        String modelId = machines.get(machineId).getModel();
+        if (models.get(modelId).hasProperty(propId)) {
+            return models.get(modelId).getProperty(propId).isStateful();
+        }
+        return false;
     }
 
     public void printMetadata() {

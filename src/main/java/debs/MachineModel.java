@@ -11,11 +11,11 @@ public class MachineModel implements Serializable {
     private String modelName;
     private HashMap<String, MachineModelProperty> properties;
 
-    private static final Logger logger = LoggerFactory.getLogger(MachineModel.class);;
+    private static final Logger logger = LoggerFactory.getLogger(MachineModel.class);
 
     public MachineModel(String model) {
         this.modelName = model;
-        this.properties= new HashMap<String, MachineModelProperty>();
+        this.properties= new HashMap<>();
     }
 
     public MachineModelProperty getProperty(String propId) {
@@ -28,6 +28,10 @@ public class MachineModel implements Serializable {
 
     public Set<String> getPropertyKeys() {
         return properties.keySet();
+    }
+
+    public boolean hasProperty(String propId) {
+        return this.properties.containsKey(propId);
     }
 
     public void createProperty(String propId) {
@@ -61,8 +65,7 @@ public class MachineModel implements Serializable {
 
     @Override
     public String toString() {
-        String info = String.format("Model name: %s", modelName);
-        return info;
+        return String.format("Model name: %s", modelName);
     }
 }
 

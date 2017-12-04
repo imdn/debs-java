@@ -185,8 +185,9 @@ class DebsParrotBenchmarkSystem extends AbstractCommandReceivingComponent {
             String message = new String(bytes, CHARSET);
             if (TERMINATION_MESSAGE.equals(message)) {
                 logger.debug("Got termination message");
-                //parser.serializeMetadata("metadata.ser");
-                taskProcessor.printMetadata();
+                taskProcessor.cleanUp();
+                //taskProcessor.serializeMetadata("metadata.ser");
+                //taskProcessor.printMetadata();
                 terminationMessageBarrier.countDown();
             } else {
                 //logger.debug("Repeating message: {}", message);

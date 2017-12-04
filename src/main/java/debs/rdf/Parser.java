@@ -1,16 +1,24 @@
 package debs.rdf;
 
-import java.io.*;
-import java.nio.charset.StandardCharsets;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import debs.*;
 import debs.utils.Metadata;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class Parser {
     private static final Logger logger = LoggerFactory.getLogger(Parser.class);
+
+    private String curMachineId, curObsGroupId, curObsId, curOutputId, curValueId;
+    private Observation curObservation;
+    private boolean skipObservation = false;
+    private MachineEventListener machineEventListener;
+
+    public void addEventListener(MachineEventListener mListener) {
+        machineEventListener = mListener;
+    }
 
     public Triple getTriples(String line) {
         String[] parts = line.split("\\s+");
@@ -49,5 +57,108 @@ public class Parser {
             }
         }
         return new Triple(uris);
+    }
+
+    public void processObservations(Triple t, EventCollection e, Metadata md) {
+        // URI: Namespace#class - We are only interested in the class
+        String subject = t.getSubject().getClassName();
+        String predicate = t.getPredicate().getClassName();
+        String object;
+
+        if (t.getObject().getLitValue() != null) {
+            object = t.getObject().getLitValue();
+        } else {
+            object = t.getObject().getClassName();
+        }
+
+        switch (predicate) {
+            case "type":
+                if (object.equals("MoldingMachineObservationGroup")) {
+                    if (curObsGroupId != null) {
+                        // Beginning of new event, start processing old event
+                        //logger.debug("Send current event for processing: " + subject);
+                        machineEventListener.observationGroupStreamedIn(curObsGroupId);
+                    }
+                    logger.debug("Beginning new observation group:" + subject);
+                    resetTrackingVariables();
+                    curObsGroupId = subject;
+                    e.addObservationGroup(curObsGroupId, new ObservationGroup(curObsGroupId));
+                }
+                break;
+
+            case "observationResultTime":
+                // Triple: obsGrpID - observationResultTime - TimeStampId
+                e.addTimestampId(subject, object);
+                break;
+
+            case "machine":
+                // Triple: obsGrpID - machine - machineId
+                e.addMachineId(subject, object);
+                curMachineId = object;
+                break;
+
+            case "contains":
+                // Triple: obsGrpID - contains - obsId
+                curObsId = object;
+                curObservation = new Observation(curObsId);
+                break;
+
+            case "hasValue":
+                // Triple: outId - hasValue - valueId
+                curValueId = object;
+                break;
+
+            case "observationResult":
+                // Triple: obsId - observationResult - outId
+                curOutputId = object;
+                break;
+
+            case "observedCycle":
+                // Triple: obsGrpId - observedCycle - cycleId
+                e.addCycleId(subject, object);
+                break;
+
+            case "observedProperty":
+                // Triple: obsId - observedProperty - propId
+                // We only need to keep track of stateful properties. Omit the rest
+                if (md.isStatefulPropertyForMachine(curMachineId, object)) {
+                    skipObservation = false;
+                    curObservation.setObservedProperty(object);
+                } else {
+                    skipObservation = true;
+                }
+                break;
+
+            case "valueLiteral":
+                // Triples
+                // valueID - valueLiteral - value
+                // timestampId - valueLiteral - value
+
+                if (skipObservation) break;
+                if (subject.contains("Timestamp_")) {
+                    e.addTimestampValue(curObsGroupId, object);
+                } else if (subject.contains("Value_")) {
+                    curObservation.setOutputVal(object);
+                    e.addObservation(curObsGroupId, curObservation);
+                    curObservation = null;
+                }
+                break;
+        }
+    }
+
+    private void resetTrackingVariables() {
+        // Upon beginning of a new observation group reset variables
+        this.skipObservation = false;
+        this.curObsGroupId = null;
+        this.curMachineId = null;
+        this.curObsId = null;
+        this.curObservation = null;
+        this.curOutputId = null;
+        this.curValueId = null;
+    }
+
+    public void processFinalObservationGroup() {
+        // Generate event for the last observation group that was streamed in
+        machineEventListener.observationGroupStreamedIn(curObsGroupId);
     }
 }

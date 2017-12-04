@@ -6,7 +6,7 @@ public class Observation {
     private String outputId;
     private String outputVal;
 
-    Observation(String id) {
+    public Observation(String id) {
         this.observationId = id;
     }
 
@@ -22,9 +22,7 @@ public class Observation {
         this.outputVal = outputVal;
     }
 
-    public String getObservationId() {
-        return observationId;
-    }
+    public String getObservationId() { return observationId; }
 
     public String getObservedProperty() {
         return observedProperty;
