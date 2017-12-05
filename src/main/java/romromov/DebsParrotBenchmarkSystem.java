@@ -59,9 +59,10 @@ class DebsParrotBenchmarkSystem extends AbstractCommandReceivingComponent {
     private RabbitQueue inputQueue;
     private RabbitQueue outputQueue;
 
+    private static final boolean inputIsMetadata = false;
     private static final String serializedMetadataFile = "metadata.ser";
 
-    private TaskProcessor taskProcessor= new TaskProcessor(serializedMetadataFile);
+    private TaskProcessor taskProcessor= new TaskProcessor(serializedMetadataFile, inputIsMetadata);
 
     @Override
     public void init() throws Exception {
@@ -185,9 +186,12 @@ class DebsParrotBenchmarkSystem extends AbstractCommandReceivingComponent {
             String message = new String(bytes, CHARSET);
             if (TERMINATION_MESSAGE.equals(message)) {
                 logger.debug("Got termination message");
-                taskProcessor.cleanUp();
-                //taskProcessor.serializeMetadata("metadata.ser");
-                //taskProcessor.printMetadata();
+                if (inputIsMetadata) {
+                    taskProcessor.serializeMetadata("metadata.ser");
+                    //taskProcessor.printMetadata();
+                } else {
+                    taskProcessor.cleanUp();
+                }
                 terminationMessageBarrier.countDown();
             } else {
                 //logger.debug("Repeating message: {}", message);

@@ -8,6 +8,7 @@ import debs.rdf.Triple;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Set;
 
 import org.slf4j.Logger;
@@ -22,14 +23,14 @@ public class Metadata implements Serializable {
     private transient String curProbThreshold;
 
     // Store properties of models and machines
-    private HashMap<String, Machine> machines;
-    private HashMap<String, MachineModel> models;
+    private LinkedHashMap<String, Machine> machines;
+    private LinkedHashMap<String, MachineModel> models;
 
     private static final Logger logger = LoggerFactory.getLogger(Metadata.class);
 
     public Metadata() {
-        machines = new HashMap<>();
-        models = new HashMap<>();
+        machines = new LinkedHashMap<>();
+        models = new LinkedHashMap<>();
     }
 
     public void processMetadata(Triple t) {
@@ -99,16 +100,21 @@ public class Metadata implements Serializable {
         models.get(curModelId).setProperty(curPropertyId, propertyName, value);
     }
 
-    public HashMap<String, Machine> getMachines() {
+    public LinkedHashMap<String, Machine> getMachines() {
         return machines;
     }
 
-    public HashMap<String, MachineModel> getModels() {
+    public LinkedHashMap<String, MachineModel> getModels() {
         return models;
     }
 
     public String getModelIdForMachine(String machineId) {
         return machines.get(machineId).getModel();
+    }
+
+    public Set<String> getPropertiesForMachine(String machineId) {
+        String modelId = machines.get(machineId).getModel();
+        return models.get(modelId).getPropertyKeys();
     }
 
     public boolean isStatefulPropertyForMachine(String machineId, String propId) {

@@ -1,7 +1,7 @@
 package debs;
 
 import java.io.Serializable;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Set;
 
 import org.slf4j.Logger;
@@ -9,20 +9,20 @@ import org.slf4j.LoggerFactory;
 
 public class MachineModel implements Serializable {
     private String modelName;
-    private HashMap<String, MachineModelProperty> properties;
+    private LinkedHashMap<String, MachineModelProperty> properties;
 
     private static final Logger logger = LoggerFactory.getLogger(MachineModel.class);
 
     public MachineModel(String model) {
         this.modelName = model;
-        this.properties= new HashMap<>();
+        this.properties= new LinkedHashMap<>();
     }
 
     public MachineModelProperty getProperty(String propId) {
         return properties.get(propId);
     }
 
-    public HashMap<String, MachineModelProperty> getProperties() {
+    public LinkedHashMap<String, MachineModelProperty> getProperties() {
         return properties;
     }
 

@@ -61,8 +61,12 @@ public class ObservationGroup {
         return timestampVal;
     }
 
-    public LinkedHashMap<String, Observation> getObservations() {
+    public LinkedHashMap<String, Observation> getObservationsMap() {
         return observations;
+    }
+
+    public ArrayList<Observation> getObservations() {
+        return new ArrayList<>(observations.values());
     }
 
 }

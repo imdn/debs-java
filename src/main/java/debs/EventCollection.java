@@ -33,4 +33,8 @@ public class EventCollection {
         //        init -> new ArrayList<Observation>()).add(o);
 
     }
+
+    public ObservationGroup getObservationGroup(String oid) {
+        return machineObs.get(oid);
+    }
 }
