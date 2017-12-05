@@ -2,7 +2,9 @@ package debs;
 
 import debs.rdf.Parser;
 import debs.rdf.Triple;
+import debs.utils.Kmeans;
 import debs.utils.Metadata;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -11,16 +13,19 @@ import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 public class TaskProcessor implements MachineEventListener {
+    private static final int WINDOW_SIZE = 10;
+    private static final int NUM_ITERATIONS = 50;
+    private static final double P_THRESHOLD = 0.05;
+
     private static Metadata metadata = new Metadata();
     private static EventCollection events = new EventCollection();
     private Parser parser = new Parser();
     private boolean inputIsMetadata = false;
     private LinkedHashMap<String, ArrayList<String>> machineToObsGrpMap = new LinkedHashMap<>();
     private LinkedHashMap<String, ObservationWindow> machineObsWindow = new LinkedHashMap<>();
+    private Kmeans kmeans = new Kmeans(NUM_ITERATIONS);
 
-    private static final int WINDOW_SIZE = 10;
-    private static final int NUM_ITERATIONS = 50;
-    private static final double P_THRESHOLD = 0.05;
+
     private static final Logger logger = LoggerFactory.getLogger(TaskProcessor.class);
 
     public TaskProcessor(String metadataFilename, boolean parsingMetadata) {
@@ -88,9 +93,24 @@ public class TaskProcessor implements MachineEventListener {
     private void processObservationWindow(String machineId) {
         ObservationWindow curWindow = machineObsWindow.get(machineId);
         Set<String> properties = metadata.getPropertiesForMachine(machineId);
+        ArrayList<Integer> centroidLabels;
 
         for (String p: properties) {
-            Double[] values = curWindow.getPropertyValues(p);
+            ArrayList<Double> values = curWindow.getPropertyValues(p);
+            Set<Double> centroids;
+            ArrayList<Integer> states = new ArrayList<>(WINDOW_SIZE);
+
+            int numClusters = metadata.getNumClustersForMachineProperty(machineId, p);
+            if (curWindow.isInitialWindow()) {
+                kmeans.compute(values, numClusters);
+            } else {
+                Set<Double> prevCentroids = curWindow.getPrevCentroidsForProperty(p);
+                Double prevVal = curWindow.getPrevValueForProperty(p);
+                kmeans.compute(values, numClusters, prevVal, prevCentroids);
+            }
+            states = kmeans.getLabels();
+            centroids = kmeans.getCentroids();
+            curWindow.setPrevCentroidsForProperty(p, centroids);
         }
     }
 

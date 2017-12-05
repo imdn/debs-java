@@ -117,6 +117,11 @@ public class Metadata implements Serializable {
         return models.get(modelId).getPropertyKeys();
     }
 
+    public int getNumClustersForMachineProperty(String machineId, String propertyId) {
+        String modelId = machines.get(machineId).getModel();
+        return models.get(modelId).getProperty(propertyId).getNumClusters();
+    }
+
     public boolean isStatefulPropertyForMachine(String machineId, String propId) {
         // Check if a given property is stateful for a given machine
         String modelId = machines.get(machineId).getModel();

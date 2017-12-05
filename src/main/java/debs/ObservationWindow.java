@@ -2,6 +2,7 @@ package debs;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.Set;
 
 public class ObservationWindow {
     /**
@@ -13,6 +14,7 @@ public class ObservationWindow {
     private LinkedHashMap<String, Integer> propertyIndex = new LinkedHashMap<>();
     private ArrayList<ArrayList<Observation>> window;
     private ArrayList<Observation> outgoingObservations;
+    private LinkedHashMap<String, Set<Double>> prevCentroids= new LinkedHashMap<>();
     private static int windowSize;
 
     public ObservationWindow(int size) {
@@ -61,7 +63,7 @@ public class ObservationWindow {
         return 0;
     }
 
-    public Double[] getPropertyValues(String propId) {
+    public ArrayList<Double> getPropertyValues(String propId) {
         ArrayList<Double> values = new ArrayList<>();
         int index = getPropertyIndex(propId);
         for (ArrayList<Observation> row: window) {
@@ -69,6 +71,23 @@ public class ObservationWindow {
             assert o.getObservedProperty().equals(propId);
             values.add(Double.parseDouble(o.getOutputVal()));
         }
-        return values.toArray(new Double[(values.size())]);
+        return values;
+    }
+
+    public void setPrevCentroidsForProperty(String propId, Set<Double> centroids) {
+        prevCentroids.put(propId, centroids);
+    }
+
+    public Set<Double> getPrevCentroidsForProperty(String propId) {
+        return prevCentroids.get(propId);
+    }
+
+    public double getPrevValueForProperty(String propId) {
+        String valAsString = outgoingObservations.get(getPropertyIndex(propId)).getOutputVal();
+        return Double.parseDouble(valAsString);
+    }
+
+    public boolean isInitialWindow() {
+        return (outgoingObservations == null);
     }
 }
