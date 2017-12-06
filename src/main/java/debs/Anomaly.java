@@ -1,7 +1,5 @@
 package debs;
 
-import java.util.LinkedHashMap;
-
 public class Anomaly {
     private String anomalyId;
     private String machineId;

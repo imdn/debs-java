@@ -10,6 +10,7 @@ public class AnomalyCollection {
     // Keep track of properties in an observationGroup flagged as anomalies
     private LinkedHashMap<String, HashSet<String>> obsGrpPropertyMap = new LinkedHashMap<>();
     private int anomalyCount;
+    private OutputHandler outputHandler = new OutputHandler();
 
     private static final Logger logger = LoggerFactory.getLogger(AnomalyCollection.class);
 
@@ -23,12 +24,13 @@ public class AnomalyCollection {
             Anomaly anom = new Anomaly(anomalyId);
             anom.setMachineId(og.getMachineId());
             anom.setTimeStampId(og.getTimestampId());
-            anom.setTimeStampId(og.getTimestampVal());
+            anom.setTimeStampValue(og.getTimestampVal());
             anom.setObservedProperty(propertyId);
             anom.setObservedProbability(observedProbability);
             obsGrpPropertyMap.computeIfAbsent(obsGrpId,
                     create -> new HashSet<>()).add(propertyId);
             logger.debug(anom.debugStr());
+            outputHandler.processAnomaly(anom);
             anomalyCount++;
         }
     }
