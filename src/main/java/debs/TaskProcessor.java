@@ -3,6 +3,7 @@ package debs;
 import debs.rdf.Parser;
 import debs.rdf.Triple;
 import debs.utils.Kmeans;
+import debs.utils.MarkovModel;
 import debs.utils.Metadata;
 
 import org.slf4j.Logger;
@@ -15,6 +16,7 @@ import java.util.*;
 public class TaskProcessor implements MachineEventListener {
     private static final int WINDOW_SIZE = 10;
     private static final int NUM_ITERATIONS = 50;
+    private static final int NUM_TRANSITIONS = 5;
     private static final double P_THRESHOLD = 0.05;
 
     private static Metadata metadata = new Metadata();
@@ -81,7 +83,7 @@ public class TaskProcessor implements MachineEventListener {
             String windowIds = String.join(",", curWindow);
             //logger.debug("Windows: " + windowIds);
 
-            processObservationWindow(machineId );
+            processObservationWindow(machineId, og);
             // Remove element at start
             //logger.debug("Outgoing: " + curWindow.get(0));
             machineToObsGrpMap.get(machineId).remove(0);
@@ -90,15 +92,18 @@ public class TaskProcessor implements MachineEventListener {
         }
     }
 
-    private void processObservationWindow(String machineId) {
+    private void processObservationWindow(String machineId, ObservationGroup curObsGrp) {
         ObservationWindow curWindow = machineObsWindow.get(machineId);
         Set<String> properties = metadata.getPropertiesForMachine(machineId);
         ArrayList<Integer> centroidLabels;
 
         for (String p: properties) {
+            //if (p.equals("_59_31") && curObsGrp.getGroupId().equals("ObservationGroup_53"))
+            //    logger.debug("Current Property : " + p);
+
             ArrayList<Double> values = curWindow.getPropertyValues(p);
             Set<Double> centroids;
-            ArrayList<Integer> states = new ArrayList<>(WINDOW_SIZE);
+            ArrayList<Integer> states;
 
             int numClusters = metadata.getNumClustersForMachineProperty(machineId, p);
             if (curWindow.isInitialWindow()) {
@@ -111,6 +116,21 @@ public class TaskProcessor implements MachineEventListener {
             states = kmeans.getLabels();
             centroids = kmeans.getCentroids();
             curWindow.setPrevCentroidsForProperty(p, centroids);
+            detectAnomalies(states, machineId, p, curObsGrp);
+        }
+    }
+
+    private void detectAnomalies(ArrayList<Integer> states, String machineId, String prop, ObservationGroup curObsGrp) {
+        MarkovModel m = new MarkovModel(states);
+        int N = states.size();
+
+        for (int i = 0; i < N - NUM_TRANSITIONS; i++) {
+            double probTransition = m.getTransitionProbability(i, i + NUM_TRANSITIONS);
+            if (probTransition < P_THRESHOLD) {
+                String tId = curObsGrp.getTimestampId();
+                String logStr = String.format("Anomaly detected: Machine - %s; Property - %s; TimeStamp: %s; P(trans): %s",
+                        machineId, prop, tId, probTransition);
+            }
         }
     }
 

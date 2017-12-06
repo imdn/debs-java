@@ -69,7 +69,11 @@ public class ObservationWindow {
         for (ArrayList<Observation> row: window) {
             Observation o = row.get(index);
             assert o.getObservedProperty().equals(propId);
-            values.add(Double.parseDouble(o.getOutputVal()));
+            Double value = Double.parseDouble(o.getOutputVal());
+            if (value == -0.0) { // A negative -0 gets a unique hash key otherwise
+                value = 0.0;
+            }
+            values.add(value);
         }
         return values;
     }
