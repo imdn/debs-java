@@ -8,8 +8,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class MachineModel implements Serializable {
-    private String modelName;
-    private LinkedHashMap<String, MachineModelProperty> properties;
+    private final String modelName;
+    private final LinkedHashMap<String, MachineModelProperty> properties;
 
     private static final Logger logger = LoggerFactory.getLogger(MachineModel.class);
 

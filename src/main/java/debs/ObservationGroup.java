@@ -4,12 +4,12 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 
 public class ObservationGroup {
-    private String groupId;
+    private final String groupId;
     private String machineId;
     private String timestampId;
     private String timestampVal;
     private String cycle;
-    private LinkedHashMap<String, Observation> observations;
+    private final LinkedHashMap<String, Observation> observations;
 
     public ObservationGroup(String id) {
         this.groupId = id;

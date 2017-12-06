@@ -1,7 +1,7 @@
 package debs;
 
 public class Observation {
-    private String observationId;
+    private final String observationId;
     private String observedProperty;
     private String outputId;
     private String outputVal;

@@ -1,8 +1,8 @@
 package debs.rdf;
 
 public class URI {
-    String namespace;
-    String className;
+    final String namespace;
+    final String className;
     String litValue;
 
     public URI(String ns, String cls) {

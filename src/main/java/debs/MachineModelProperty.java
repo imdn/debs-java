@@ -3,7 +3,7 @@ package debs;
 import java.io.Serializable;
 
 public class MachineModelProperty implements Serializable{
-    private String propId;
+    private final String propId;
     private float probThreshold;
     private int numClusters;
     private boolean isStateful = false;
@@ -42,8 +42,7 @@ public class MachineModelProperty implements Serializable{
 
     @Override
     public String toString() {
-        String info = String.format("PropId: %s; P(threshold): %s; #Clusters: %s; Stateful:%s",
+        return String.format("PropId: %s; P(threshold): %s; #Clusters: %s; Stateful:%s",
                 propId, probThreshold, numClusters, isStateful);
-        return info;
     }
 }

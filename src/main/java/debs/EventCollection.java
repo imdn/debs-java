@@ -1,11 +1,10 @@
 package debs;
 
 import java.util.LinkedHashMap;
-import java.util.ArrayList;
 
 public class EventCollection {
     // Key:ObsGroupId; Value: <ArrayList of Observations>
-    private static LinkedHashMap<String, ObservationGroup> machineObs = new LinkedHashMap<>();
+    private static final LinkedHashMap<String, ObservationGroup> machineObs = new LinkedHashMap<>();
 
     public void addObservationGroup(String oid, ObservationGroup o) {
         machineObs.put(oid, o);

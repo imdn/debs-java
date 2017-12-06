@@ -3,7 +3,7 @@ package debs;
 import java.io.Serializable;
 
 public class Machine implements Serializable {
-    private String id;
+    private final String id;
     private String type;
     private String model;
 
@@ -33,7 +33,6 @@ public class Machine implements Serializable {
 
     @Override
     public String toString() {
-        String info = String.format("MachineID: %s; Type: %s; Model: %s", id, type, model);
-        return info;
+        return String.format("MachineID: %s; Type: %s; Model: %s", id, type, model);
     }
 }

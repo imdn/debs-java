@@ -1,9 +1,9 @@
 package debs.rdf;
 
 public class Triple {
-    private URI subject;
-    private URI predicate;
-    private URI object;
+    private final URI subject;
+    private final URI predicate;
+    private final URI object;
 
     Triple(URI[] uriArr) {
         subject = uriArr[0];
@@ -13,9 +13,8 @@ public class Triple {
 
     @Override
     public String toString() {
-        String infoStr = String.format("Subject - %s\nPredicate - %s\nObject - %s",
+        return String.format("Subject - %s\nPredicate - %s\nObject - %s",
                 subject.toString(), predicate.toString(), object.toString());
-        return infoStr;
     }
 
     public URI getSubject() {

@@ -2,12 +2,9 @@ package debs.utils;
 
 import debs.Machine;
 import debs.MachineModel;
-import debs.MachineModelProperty;
 import debs.rdf.Triple;
 
-import java.io.IOException;
 import java.io.Serializable;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Set;
 
@@ -23,8 +20,8 @@ public class Metadata implements Serializable {
     private transient String curProbThreshold;
 
     // Store properties of models and machines
-    private LinkedHashMap<String, Machine> machines;
-    private LinkedHashMap<String, MachineModel> models;
+    private final LinkedHashMap<String, Machine> machines;
+    private final LinkedHashMap<String, MachineModel> models;
 
     private static final Logger logger = LoggerFactory.getLogger(Metadata.class);
 

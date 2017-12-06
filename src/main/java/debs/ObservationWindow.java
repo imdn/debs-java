@@ -11,10 +11,10 @@ public class ObservationWindow {
      *
      * propertyIndex - Maps propertyId to the column where the index is stored
      */
-    private LinkedHashMap<String, Integer> propertyIndex = new LinkedHashMap<>();
-    private ArrayList<ArrayList<Observation>> window;
+    private final LinkedHashMap<String, Integer> propertyIndex = new LinkedHashMap<>();
+    private final ArrayList<ArrayList<Observation>> window;
     private ArrayList<Observation> outgoingObservations;
-    private LinkedHashMap<String, Set<Double>> prevCentroids= new LinkedHashMap<>();
+    private final LinkedHashMap<String, Set<Double>> prevCentroids= new LinkedHashMap<>();
     private static int windowSize;
 
     public ObservationWindow(int size) {

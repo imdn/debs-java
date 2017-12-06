@@ -20,12 +20,12 @@ public class TaskProcessor implements MachineEventListener {
     private static final double P_THRESHOLD = 0.05;
 
     private static Metadata metadata = new Metadata();
-    private static EventCollection events = new EventCollection();
-    private Parser parser = new Parser();
+    private static final EventCollection events = new EventCollection();
+    private final Parser parser = new Parser();
     private boolean inputIsMetadata = false;
-    private LinkedHashMap<String, ArrayList<String>> machineToObsGrpMap = new LinkedHashMap<>();
-    private LinkedHashMap<String, ObservationWindow> machineObsWindow = new LinkedHashMap<>();
-    private Kmeans kmeans = new Kmeans(NUM_ITERATIONS);
+    private final LinkedHashMap<String, ArrayList<String>> machineToObsGrpMap = new LinkedHashMap<>();
+    private final LinkedHashMap<String, ObservationWindow> machineObsWindow = new LinkedHashMap<>();
+    private final Kmeans kmeans = new Kmeans(NUM_ITERATIONS);
 
 
     private static final Logger logger = LoggerFactory.getLogger(TaskProcessor.class);

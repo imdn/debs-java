@@ -5,10 +5,10 @@ import java.util.HashSet;
 import java.util.Set;
 
 public class MarkovModel {
-    private ArrayList<Integer> states;
-    private int numStates;
-    private int[][] transitionMatrix;
-    private double[][] transitionProbabilityMatrix;
+    private final ArrayList<Integer> states;
+    private final int numStates;
+    private final int[][] transitionMatrix;
+    private final double[][] transitionProbabilityMatrix;
 
     public MarkovModel(ArrayList<Integer> states) {
         this.states = states;

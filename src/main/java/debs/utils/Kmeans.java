@@ -52,7 +52,6 @@ public class Kmeans {
         Double incomingValue;
         Set<Double> centroids = new HashSet<>();
         Set<Double> uniqValues = new LinkedHashSet<>();
-        ArrayList<Integer> stateLabels = new ArrayList<>(values.size());
 
         uniqValues.addAll(values);
         incomingValue = values.get(values.size() - 1);
@@ -162,7 +161,6 @@ public class Kmeans {
     }
 
     private ArrayList<Integer> assignLabels(ArrayList<Double> values, Set<Double> centroids) {
-        ArrayList<Integer> labels = new ArrayList<>(values.size());
         LinkedHashMap<Double, Double> valueToCentroidMap;
         valueToCentroidMap = findNearestCentroid(values, centroids);
         return assignLabels(values, centroids, valueToCentroidMap);
