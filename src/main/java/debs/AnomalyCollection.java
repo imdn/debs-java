@@ -39,4 +39,9 @@ public class AnomalyCollection {
         String obsGrpId = og.getGroupId();
         return obsGrpPropertyMap.containsKey(obsGrpId) && obsGrpPropertyMap.get(obsGrpId).contains(propertyId);
     }
+
+    public void addOutputListener(OutputEventListener listener) {
+        outputHandler.addEventListener(listener);
+    }
+
 }

@@ -15,6 +15,8 @@ public class OutputHandler {
     private final String XML_DOUBLE_URI = "<http://www.w3.org/2001/XMLSchema#double>";
     private final String XML_DATETIME_URI = "<http://www.w3.org/2001/XMLSchema#dateTime>";
 
+    private OutputEventListener outputEventListener;
+
     private int sequenceNum = 0;
 
     private static final Logger logger = LoggerFactory.getLogger(OutputHandler.class);
@@ -23,8 +25,12 @@ public class OutputHandler {
         return String.format("%s %s %s .", subject, predicate, object);
     }
 
-    public void sendToOutputStream(String body) {
+    public void addEventListener(OutputEventListener oListener) {
+        outputEventListener = oListener;
+    }
 
+    public void sendToOutputStream(String body) {
+        outputEventListener.streamAnomalyOut(body);
     }
 
     public String createDebsURI(String fragment) {
@@ -56,7 +62,8 @@ public class OutputHandler {
                 String.format("%s^^%s", anom.getTimeStampValue(), XML_DATETIME_URI)));
 
         for (String t: triples) {
-            logger.debug(t);
+            //logger.debug(t);
+            sendToOutputStream(t);
         }
     }
 }

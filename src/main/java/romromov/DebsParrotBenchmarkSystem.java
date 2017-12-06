@@ -8,6 +8,7 @@ import com.rabbitmq.client.DefaultConsumer;
 import com.rabbitmq.client.Envelope;
 import com.rabbitmq.client.MessageProperties;
 
+import debs.OutputEventListener;
 import debs.TaskProcessor;
 
 import org.hobbit.core.Commands;
@@ -49,7 +50,7 @@ import java.lang.*;
  *
  * @author Roman Katerinenko
  */
-class DebsParrotBenchmarkSystem extends AbstractCommandReceivingComponent {
+class DebsParrotBenchmarkSystem extends AbstractCommandReceivingComponent implements OutputEventListener {
     private static final Logger logger = LoggerFactory.getLogger(DebsParrotBenchmarkSystem.class);
     private static final String TERMINATION_MESSAGE = "~~Termination Message~~";
     private static final Charset CHARSET = Charset.forName("UTF-8");
@@ -62,7 +63,7 @@ class DebsParrotBenchmarkSystem extends AbstractCommandReceivingComponent {
 
     private static final boolean inputIsMetadata = false;
     private static final String serializedMetadataFile = "metadata" + File.separator + "metadata_59.ser";
-    private final TaskProcessor taskProcessor= new TaskProcessor(serializedMetadataFile, inputIsMetadata);
+    private final TaskProcessor taskProcessor= new TaskProcessor(serializedMetadataFile, inputIsMetadata, this);
 
     @Override
     public void init() throws Exception {
@@ -216,6 +217,16 @@ class DebsParrotBenchmarkSystem extends AbstractCommandReceivingComponent {
             channel.close();
             connection.close();
         } catch (TimeoutException e) {
+            logger.debug("Exception", e);
+        }
+    }
+
+    @Override
+    public void streamAnomalyOut(String anomalyTriple) {
+        logger.debug("Streaming out anomaly: " + anomalyTriple);
+        try {
+            send(anomalyTriple);
+        } catch (Exception e) {
             logger.debug("Exception", e);
         }
     }

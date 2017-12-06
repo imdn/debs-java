@@ -35,7 +35,7 @@ public class TaskProcessor implements MachineEventListener {
 
     private static final Logger logger = LoggerFactory.getLogger(TaskProcessor.class);
 
-    public TaskProcessor(String metadataFilename, boolean parsingMetadata) {
+    public TaskProcessor(String metadataFilename, boolean parsingMetadata, OutputEventListener outputListener) {
         if (parsingMetadata) {
             // If true read metadata into object and serialize it
             inputIsMetadata = true;
@@ -44,6 +44,7 @@ public class TaskProcessor implements MachineEventListener {
             logger.debug("Loading serialized metadata ...");
             deSerializeMetadata(metadataFilename);
             parser.addEventListener(this);
+            anomalies.addOutputListener(outputListener);
         }
     }
 
@@ -160,7 +161,7 @@ public class TaskProcessor implements MachineEventListener {
             anomalies.addAnomaly(anomOG, prop, probTransition);
             String logStr = String.format("Anomaly detected: Machine - %s; Property - %s; TimeStamp: %s; P(trans): %s",
                     machineId, prop, anomOG.getTimestampId(), probTransition);
-            // logger.debug(logStr);
+            logger.debug(logStr);
             kmeans.printDebugInfo(logStr);
             List<String> curWindow = machineToObsGrpMap.get(machineId).subList(0, WINDOW_SIZE);
             String windowIds = String.join(",", curWindow);
