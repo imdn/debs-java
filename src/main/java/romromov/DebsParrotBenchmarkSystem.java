@@ -17,6 +17,7 @@ import org.hobbit.core.data.RabbitQueue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.concurrent.CountDownLatch;
@@ -60,8 +61,7 @@ class DebsParrotBenchmarkSystem extends AbstractCommandReceivingComponent {
     private RabbitQueue outputQueue;
 
     private static final boolean inputIsMetadata = false;
-    private static final String serializedMetadataFile = "metadata_59.ser";
-
+    private static final String serializedMetadataFile = "metadata" + File.separator + "metadata_59.ser";
     private final TaskProcessor taskProcessor= new TaskProcessor(serializedMetadataFile, inputIsMetadata);
 
     @Override

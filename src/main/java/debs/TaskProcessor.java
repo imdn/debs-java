@@ -184,7 +184,7 @@ public class TaskProcessor implements MachineEventListener {
     }
 
     private void deSerializeMetadata(String filename) {
-        logger.debug("Deserializing metadata from: ", filename);
+        logger.debug(String.format("Deserializing metadata from: %s", filename));
         try {
             FileInputStream fis = new FileInputStream(filename);
             ObjectInputStream ois = new ObjectInputStream(fis);
