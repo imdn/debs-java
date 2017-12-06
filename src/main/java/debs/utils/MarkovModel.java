@@ -1,6 +1,7 @@
 package debs.utils;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -49,6 +50,13 @@ public class MarkovModel {
                 }
             }
         }
+    }
+
+    public String getMatrixString() {
+        return Arrays.deepToString(transitionMatrix);
+    }
+    public String getPMatrixString() {
+        return Arrays.deepToString(transitionProbabilityMatrix);
     }
 
     public double getTransitionProbability(Integer startStateIndex, Integer endStateIndex) {

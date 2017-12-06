@@ -36,4 +36,8 @@ public class EventCollection {
     public ObservationGroup getObservationGroup(String oid) {
         return machineObs.get(oid);
     }
+
+    public void removeObservationGroup(String oid) {
+        machineObs.remove(oid);
+    }
 }

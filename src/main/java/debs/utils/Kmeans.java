@@ -25,6 +25,10 @@ public class Kmeans {
         return finalCentroids;
     }
 
+    public void printDebugInfo(String str) {
+        logger.debug(str);
+    }
+
     public void compute(ArrayList<Double> values,
                         int numClusters) {
         Set<Double> uniqValues  = new LinkedHashSet<>();
@@ -97,6 +101,7 @@ public class Kmeans {
             this.finalLabels = assignLabels(values, centroids);
         }
         logger.debug(String.format("Values: %s", Arrays.toString(values.toArray())));
+        logger.debug(String.format("Centroids: %s", Arrays.toString(finalCentroids.toArray())));
         logger.debug(String.format("Labels: %s", Arrays.toString(finalLabels.toArray())));
     }
 
