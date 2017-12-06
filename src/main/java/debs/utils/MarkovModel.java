@@ -60,13 +60,15 @@ public class MarkovModel {
     }
 
     public double getTransitionProbability(Integer startStateIndex, Integer endStateIndex) {
+        // Compute probabily of Markov chain. Inclusive of startIndex and endIndex i.e. [start, end]
         assert startStateIndex < endStateIndex;
         double probability = 1;
-
+        String debugStr = "";
         for (int i = startStateIndex; i < endStateIndex; i++) {
             int startState = states.get(i);
             int nextState = states.get(i+1);
             probability = probability * transitionProbabilityMatrix[startState][nextState];
+            //debugStr += String.format("%s * ", transitionProbabilityMatrix[startState][nextState]);
         }
         return probability;
     }

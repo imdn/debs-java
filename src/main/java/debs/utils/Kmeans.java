@@ -51,7 +51,7 @@ public class Kmeans {
     public void compute(ArrayList<Double> values,
                                  int numClusters,
                                  Double outgoingValue,
-                                 Set<Double> prevCentroids) {
+                                 Set<Double> seedCentroids) {
         boolean centroidsComputed = false;
         Double incomingValue;
         Set<Double> centroids = new HashSet<>();
@@ -75,33 +75,39 @@ public class Kmeans {
                 centroidsComputed = true;
         } else if (outgoingValue.equals(incomingValue)) {
             // no change in cluster centers
-            centroids = prevCentroids;
+            centroids = seedCentroids;
             centroidsComputed = true;
         } else if (uniqValues.size() <= numClusters) {
             // fewer unique values than required upper bound of cluster centers
             centroids = uniqValues;
             centroidsComputed = true;
-        } else if (prevCentroids.contains(outgoingValue) && !values.contains(outgoingValue)) {
+        } else if (seedCentroids.contains(outgoingValue) && !values.contains(outgoingValue)) {
             // if an outgoing value was the cluster center and it's not in values, then
             // next incoming value is a cluster center if it's not already one
-            if (prevCentroids.contains(incomingValue)) {
-                // this shouldn't occur due to the 1st 'else if' part
-                logger.debug("Suspicious! Removed cluster center has same values as incoming");
-            } else {
-                centroids = prevCentroids;
-                centroids.remove(outgoingValue);
-                centroids.add(incomingValue);
+            if (seedCentroids.contains(incomingValue)) {
+                logger.debug("Rare case! A cluster center has same values as incoming");
             }
+            logger.debug(String.format("Reseeding centroids due to empty cluster centre: %s", outgoingValue));
+            logger.debug(String.format("Old Seed Centroids: %s", Arrays.toString(seedCentroids.toArray())));
+            centroids = seedCentroids;
+            centroids.remove(outgoingValue);
+            centroids.add(incomingValue);
+            logger.debug(String.format("New Seed Centroids: %s", Arrays.toString(centroids.toArray())));
+        } else if (seedCentroids.size() < numClusters) {
+            // add last incoming value to set of centroids
+            logger.debug(String.format("Fewer centroids than allowed. Adding incoming value: %s", incomingValue));
+            centroids.add(incomingValue);
         }
 
         if (!centroidsComputed) {
-            computeCentroids(values, numClusters, prevCentroids);
+            logger.debug(String.format("Computing Centroids with Seeds: %s", Arrays.toString(seedCentroids.toArray())));
+            computeCentroids(values, numClusters, seedCentroids);
         } else {
             this.finalCentroids = centroids;
             this.finalLabels = assignLabels(values, centroids);
         }
         logger.debug(String.format("Values: %s", Arrays.toString(values.toArray())));
-        logger.debug(String.format("Centroids: %s", Arrays.toString(finalCentroids.toArray())));
+        logger.debug(String.format("Final Centroids: %s", Arrays.toString(finalCentroids.toArray())));
         logger.debug(String.format("Labels: %s", Arrays.toString(finalLabels.toArray())));
     }
 
@@ -148,7 +154,7 @@ public class Kmeans {
 
             if (computedCentroids.equals(initCentroids)) {
                 logger.debug("Convergence achived in iteration: " + currentIteration.toString());
-                logger.debug(String.format("Centroids: %s", Arrays.toString(initCentroids.toArray())));
+                //logger.debug(String.format("Centroids: %s", Arrays.toString(initCentroids.toArray())));
                 break;
             }
             else {

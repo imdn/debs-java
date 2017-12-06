@@ -20,8 +20,8 @@ public class TaskProcessor implements MachineEventListener {
     private static final double P_THRESHOLD = 0.005;
 
     // for debugging.
-    private static final String PROPERTY_FILTER = null; //"_59_31"; //Process only selected property
-    private static int OGROUP_LIMIT = -1; // Max number of obs groups to process
+    private static String PROPERTY_FILTER; //"_59_31"; //Process only selected property
+    private static int OGROUP_LIMIT = -1; //50; // Max number of obs groups to process
 
     private static Metadata metadata = new Metadata();
     private static final EventCollection events = new EventCollection();
@@ -31,7 +31,7 @@ public class TaskProcessor implements MachineEventListener {
     private final LinkedHashMap<String, ObservationWindow> machineObsWindow = new LinkedHashMap<>();
     private final Kmeans kmeans = new Kmeans(NUM_ITERATIONS);
     private final AnomalyCollection anomalies = new AnomalyCollection();
-
+    private int numObsGroupsProcessed;
 
     private static final Logger logger = LoggerFactory.getLogger(TaskProcessor.class);
 
@@ -53,14 +53,23 @@ public class TaskProcessor implements MachineEventListener {
         if (inputIsMetadata) {
             metadata.processMetadata(triple);
         } else {
-            parser.processObservations(triple, events, metadata, OGROUP_LIMIT);
+            if ( OGROUP_LIMIT < 0 || (OGROUP_LIMIT > 0 && numObsGroupsProcessed <= OGROUP_LIMIT)) {
+                parser.processObservations(triple, events, metadata);
+                if (OGROUP_LIMIT > 0 && numObsGroupsProcessed == OGROUP_LIMIT)
+                    logger.info(
+                            String.format("%s observation groups processed. Will ignore the rest",
+                                    numObsGroupsProcessed));
+            }
         }
     }
 
     @Override
     public void observationGroupStreamedIn(String obsGrpId) {
-        logger.debug("Observation Group was streamed in: " + obsGrpId);
-        processEvent(obsGrpId);
+        if (obsGrpId != null) {
+            logger.debug("Observation Group was streamed in: " + obsGrpId);
+            processEvent(obsGrpId);
+            numObsGroupsProcessed++;
+        }
     }
 
     public void cleanUp() {
@@ -84,8 +93,8 @@ public class TaskProcessor implements MachineEventListener {
         int numObsInWindow = machineToObsGrpMap.get(machineId).size();
 
         if (numObsInWindow == WINDOW_SIZE) {
-            List<String> curWindow = machineToObsGrpMap.get(machineId).subList(0, WINDOW_SIZE);
-            String windowIds = String.join(",", curWindow);
+            //List<String> curWindow = machineToObsGrpMap.get(machineId).subList(0, WINDOW_SIZE);
+            //String windowIds = String.join(",", curWindow);
             //logger.debug("Windows: " + windowIds);
 
             processObservationWindow(machineId, og);
@@ -140,21 +149,24 @@ public class TaskProcessor implements MachineEventListener {
         kmeans.printDebugInfo("Transition Matrix:\n" + m.getMatrixString());
         kmeans.printDebugInfo("Transition Probability Matrix:\n" + m.getPMatrixString());
 
-        for (int i = 0; i < N - NUM_TRANSITIONS; i++) {
-            double probTransition = m.getTransitionProbability(i, i + NUM_TRANSITIONS);
-            if (probTransition < P_THRESHOLD) {
-                // Since the new observation is anomalous, the anomaly chain started at position 'i'
-                String anomalousObsGrpId = machineToObsGrpMap.get(machineId).get(i);
-                ObservationGroup anomOG = events.getObservationGroup(anomalousObsGrpId);
-                anomalies.addAnomaly(anomOG, prop, probTransition);
-//                String tId = anomOG.getTimestampId();
-//                String logStr = String.format("Anomaly detected: Machine - %s; Property - %s; TimeStamp: %s; P(trans): %s",
-//                        machineId, prop, tId, probTransition);
-//                logger.debug(logStr);
-//                kmeans.printDebugInfo(logStr);
-                break; // only new observation can cause an anomaly. No need to check further in current window
-            }
+        // We check only for the last N transitions
+        int transitionEndIndex = N - 1;
+        int transitionStartIndex = transitionEndIndex - NUM_TRANSITIONS;
+        int i = N -1;
+        double probTransition = m.getTransitionProbability(transitionStartIndex, transitionEndIndex);
+        if (probTransition < P_THRESHOLD) {
+            String anomalousObsGrpId = machineToObsGrpMap.get(machineId).get(transitionStartIndex);
+            ObservationGroup anomOG = events.getObservationGroup(anomalousObsGrpId);
+            anomalies.addAnomaly(anomOG, prop, probTransition);
+            String logStr = String.format("Anomaly detected: Machine - %s; Property - %s; TimeStamp: %s; P(trans): %s",
+                    machineId, prop, anomOG.getTimestampId(), probTransition);
+            // logger.debug(logStr);
+            kmeans.printDebugInfo(logStr);
+            List<String> curWindow = machineToObsGrpMap.get(machineId).subList(0, WINDOW_SIZE);
+            String windowIds = String.join(",", curWindow);
+            kmeans.printDebugInfo("Window: " + windowIds);
         }
+
     }
 
     public void serializeMetadata(String filename) {

@@ -15,8 +15,6 @@ public class Parser {
     private MachineEventListener machineEventListener;
     private Observation curObservation;
     private boolean skipObservation = false;
-    private boolean noMoreProcessing = false;
-    private int obsGroupsProcessed;
 
     public void addEventListener(MachineEventListener mListener) {
         machineEventListener = mListener;
@@ -61,10 +59,8 @@ public class Parser {
         return new Triple(uris);
     }
 
-    public void processObservations(Triple t, EventCollection e, Metadata md, int limit) {
+    public void processObservations(Triple t, EventCollection e, Metadata md) {
         // URI: Namespace#class - We are only interested in the class
-        if (noMoreProcessing) {return; }
-
         String subject = t.getSubject().getClassName();
         String predicate = t.getPredicate().getClassName();
         String object;
@@ -82,12 +78,6 @@ public class Parser {
                         // Beginning of new event, start processing old event
                         //logger.debug("Send current event for processing: " + subject);
                         machineEventListener.observationGroupStreamedIn(curObsGroupId);
-                        obsGroupsProcessed++;
-                        if (limit > 0 && obsGroupsProcessed >= limit) {
-                            logger.debug(String.format(
-                                    "Will not process any more observations due to limit of %s", limit));
-                            noMoreProcessing = true;
-                        }
                     }
                     logger.debug("Beginning new observation group:" + subject);
                     resetTrackingVariables();
