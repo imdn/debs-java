@@ -187,7 +187,7 @@ class DebsParrotBenchmarkSystem extends AbstractCommandReceivingComponent {
             if (TERMINATION_MESSAGE.equals(message)) {
                 logger.debug("Got termination message");
                 if (inputIsMetadata) {
-                    taskProcessor.serializeMetadata("metadata.ser");
+                    taskProcessor.serializeMetadata(serializedMetadataFile);
                     //taskProcessor.printMetadata();
                 } else {
                     taskProcessor.cleanUp();
