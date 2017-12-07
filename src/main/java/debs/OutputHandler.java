@@ -55,16 +55,13 @@ public class OutputHandler {
                 createDebsURI(anom.getTimeStampId())));
         triples.add(createTriples(anomalyURI,
                 String.format(RESULT_URI, "hasProbabilityOfObservedAbnormalSequence"),
-                String.format("%s^^%s", anom.getObservedProbability(), XML_DOUBLE_URI)));
-        triples.add(createTriples(timestampURI, RDF_URI,
-                    String.format(IOT_URI, "Timestamp")));
-        triples.add(createTriples(timestampURI,
-                String.format(IOT_URI, "ValueLiteral"),
-                String.format("%s^^%s", anom.getTimeStampValue(), XML_DATETIME_URI)));
+                String.format("\"%s\"^^%s", anom.getObservedProbability(), XML_DOUBLE_URI)));
+//        triples.add(createTriples(timestampURI, RDF_URI,
+//                    String.format(IOT_URI, "Timestamp")));
+//        triples.add(createTriples(timestampURI,
+//                String.format(IOT_URI, "ValueLiteral"),
+//                String.format("%s^^%s", anom.getTimeStampValue(), XML_DATETIME_URI)));
 
-        for (String t: triples) {
-            //logger.debug(t);
-            sendToOutputStream(t);
-        }
+        sendToOutputStream(String.join("\n", triples));
     }
 }

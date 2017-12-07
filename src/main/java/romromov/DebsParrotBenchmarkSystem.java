@@ -159,6 +159,8 @@ class DebsParrotBenchmarkSystem extends AbstractCommandReceivingComponent implem
     private void execute() throws Exception {
         try {
             logger.debug("Waiting for termination message...");
+            //String params = String.format("Parameters: %s", System.getenv().get("SYSTEM_PARAMETERS_MODEL_KEY"));
+            //taskProcessor.postRemoteLog(params);
             terminationMessageBarrier.await();
             logger.debug("Sending termination message...");
             sendTerminationMessage();

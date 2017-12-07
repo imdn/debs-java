@@ -220,7 +220,7 @@ public class TaskProcessor implements MachineEventListener {
         metadata.printMetadata();
     }
 
-    static void postRemoteLog(String message) {
+    public static void postRemoteLog(String message) {
         URL url;
         URLConnection con;
         HttpURLConnection http;
