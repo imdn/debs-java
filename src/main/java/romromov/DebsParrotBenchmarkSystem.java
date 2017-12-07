@@ -62,7 +62,7 @@ class DebsParrotBenchmarkSystem extends AbstractCommandReceivingComponent implem
     private RabbitQueue outputQueue;
 
     private static final boolean inputIsMetadata = false;
-    private static final String serializedMetadataFile = "metadata" + File.separator + "metadata_59.ser";
+    private static final String serializedMetadataFile = "metadata" + File.separator + "metadata_final.ser";
     private final TaskProcessor taskProcessor= new TaskProcessor(serializedMetadataFile, inputIsMetadata, this);
 
     @Override

@@ -6,7 +6,8 @@ import org.slf4j.LoggerFactory;
 import org.slf4j.Logger;
 
 public class OutputHandler {
-    private final String SYSTEM_URI = System.getenv().get("SYSTEM_URI_KEY");
+    //private final String SYSTEM_URI = System.getenv().get("SYSTEM_URI_KEY");
+    private final String SYSTEM_URI = "http://project-hobbit.eu/resources/debs2017";
     private final String RDF_URI = "<http://www.w3.org/1999/02/22-rdf-syntax-ns#type>";
     private final String MACHINE_URI ="<http://www.agtinternational.com/ontologies/I4.0#machine>";
     private final String IOT_URI = "<http://www.agtinternational.com/ontologies/IoTCore#%s>";

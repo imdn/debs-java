@@ -59,6 +59,45 @@ public class Parser {
         return new Triple(uris);
     }
 
+    public Triple getTurtleTriples(String line) {
+        String[] parts = line.split("\\s+");
+
+        Pattern regex1 = Pattern.compile("^(\\w+):(\\w+)(\\.)?$");
+        Pattern regex2 = Pattern.compile("^\"(.+)\"\\^\\^(\\w+):(\\w+)(\\.)?$");
+
+        boolean parsed = false;
+        boolean isValue = false;
+
+        String subject, object, predicate;
+
+        URI[] uris = new URI[3];
+
+        //logger.debug(line);
+
+        Matcher m;
+
+        for (int i=0; i < parts.length; i++) {
+            m = regex2.matcher(parts[i]);
+            String currentToken = parts[i];
+            if (m.matches()) {
+                String literalValue = m.group(1);
+                String namespace = m.group(2);
+                String fragment = m.group(3);
+                uris[i] = new URI(namespace, fragment, literalValue);
+            } else {
+                m = regex1.matcher(currentToken);
+                if (m.matches()) {
+                    String namespace = m.group(1);
+                    String fragment = m.group(2);
+                    uris[i] = new URI(namespace, fragment);
+                } else {
+                    //logger.debug("Error! No regex match for - " + currentToken);
+                }
+            }
+        }
+        return new Triple(uris);
+    }
+
     public void processObservations(Triple t, EventCollection e, Metadata md) {
         // URI: Namespace#class - We are only interested in the class
         String subject = t.getSubject().getClassName();

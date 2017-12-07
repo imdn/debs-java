@@ -10,6 +10,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.*;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.net.URLConnection;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 
@@ -22,6 +25,7 @@ public class TaskProcessor implements MachineEventListener {
     // for debugging.
     private static String PROPERTY_FILTER; //"_59_31"; //Process only selected property
     private static int OGROUP_LIMIT = -1; //50; // Max number of obs groups to process
+    private static int remoteLogMsgCount = 0;
 
     private static Metadata metadata = new Metadata();
     private static final EventCollection events = new EventCollection();
@@ -49,17 +53,30 @@ public class TaskProcessor implements MachineEventListener {
     }
 
     public void processMessage(byte[] message) {
-        String line = new String(message, StandardCharsets.UTF_8);
-        Triple triple = parser.getTriples(line.trim());
+        String tuples = new String(message, StandardCharsets.UTF_8);
+
+        /*
+        if (remoteLogMsgCount < 10) {
+            String logStr = String.format("\n=== Message #%s ===\n %s", remoteLogMsgCount, tuples);
+            postRemoteLog(logStr);
+            remoteLogMsgCount++;
+        }*/
+
         if (inputIsMetadata) {
+            Triple triple = parser.getTriples(tuples.trim());
             metadata.processMetadata(triple);
         } else {
             if ( OGROUP_LIMIT < 0 || (OGROUP_LIMIT > 0 && numObsGroupsProcessed <= OGROUP_LIMIT)) {
-                parser.processObservations(triple, events, metadata);
-                if (OGROUP_LIMIT > 0 && numObsGroupsProcessed == OGROUP_LIMIT)
-                    logger.info(
-                            String.format("%s observation groups processed. Will ignore the rest",
-                                    numObsGroupsProcessed));
+                String[] lines = tuples.split("\n+");
+                for (String line: lines) {
+                    Triple triple = parser.getTriples(line.trim());
+                    //logger.debug(triple.toString());
+                    parser.processObservations(triple, events, metadata);
+                    if (OGROUP_LIMIT > 0 && numObsGroupsProcessed == OGROUP_LIMIT)
+                        logger.info(
+                                String.format("%s observation groups processed. Will ignore the rest",
+                                        numObsGroupsProcessed));
+                }
             }
         }
     }
@@ -202,4 +219,47 @@ public class TaskProcessor implements MachineEventListener {
     public void printMetadata() {
         metadata.printMetadata();
     }
+
+    static void postRemoteLog(String message) {
+        URL url;
+        URLConnection con;
+        HttpURLConnection http;
+        try {
+            url = new URL("http://imdn.pythonanywhere.com/postmsg");
+            con = url.openConnection();
+            http = (HttpURLConnection) con;
+            http.setRequestMethod("POST");
+            //http.setRequestProperty("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
+            String urlParams = String.format("message=%s", message);
+            logger.debug("UrlParams: " + urlParams);
+            http.setDoOutput(true);
+            DataOutputStream wr = new DataOutputStream(http.getOutputStream());
+            wr.writeBytes(urlParams);
+            wr.flush();
+            wr.close();
+
+            int responseCode = http.getResponseCode();
+            System.out.println("\nSending 'POST' request to URL : " + url);
+            System.out.println("Post parameters : " + urlParams);
+            System.out.println("Response Code : " + responseCode);
+
+            BufferedReader in = new BufferedReader(
+                    new InputStreamReader(con.getInputStream()));
+            String inputLine;
+            StringBuffer response = new StringBuffer();
+
+            while ((inputLine = in.readLine()) != null) {
+                response.append(inputLine);
+            }
+            in.close();
+
+            //print result
+            System.out.println(response.toString());
+
+            Thread.sleep(1000);
+        } catch (Exception e) {
+            logger.debug("Exception", e);
+        }
+    }
+
 }
