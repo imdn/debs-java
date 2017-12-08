@@ -94,15 +94,14 @@ public class Kmeans {
             logger.debug(String.format("Reseeding centroids due to empty cluster centre: %s. Replaced by: %s",
                                             outgoingValue, incomingValue));
             logger.debug(String.format("Old Seed Centroids: %s", Arrays.toString(seedCentroids.toArray())));
-            centroids = seedCentroids;
-            centroids.remove(outgoingValue);
-            centroids.add(incomingValue);
-            logger.debug(String.format("New Seed Centroids: %s", Arrays.toString(centroids.toArray())));
+            seedCentroids.remove(outgoingValue);
+            seedCentroids.add(incomingValue);
+            logger.debug(String.format("New Seed Centroids: %s", Arrays.toString(seedCentroids.toArray())));
         } else if (seedCentroids.size() < numClusters) {
             // add last incoming value to set of centroids
             logger.debug(String.format("Fewer centroids than allowed. Adding incoming value: %s", incomingValue));
-            centroids.add(incomingValue);
-        }
+            seedCentroids.add(incomingValue);
+        } // Done with deciding whether to compute or reuse centroids and determining new seeds
 
         if (!centroidsComputed) {
             logger.debug(String.format("Computing Centroids with Seeds: %s", Arrays.toString(seedCentroids.toArray())));
