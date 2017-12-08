@@ -62,6 +62,8 @@ public class OutputHandler {
 //                String.format(IOT_URI, "ValueLiteral"),
 //                String.format("%s^^%s", anom.getTimeStampValue(), XML_DATETIME_URI)));
 
-        sendToOutputStream(String.join("\n", triples));
+        String anomalyTriples = String.join("\n", triples);
+        logger.debug(anomalyTriples);
+        sendToOutputStream(anomalyTriples);
     }
 }
